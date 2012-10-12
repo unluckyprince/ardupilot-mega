@@ -3,10 +3,6 @@
 #ifndef __AP_INERTIAL_SENSOR_STUB_H__
 #define __AP_INERTIAL_SENSOR_STUB_H__
 
-#include <string.h>
-#include <stdint.h>
-
-#include "../AP_PeriodicProcess/AP_PeriodicProcess.h"
 #include "AP_InertialSensor.h"
 
 class AP_InertialSensor_Stub : public AP_InertialSensor
@@ -17,6 +13,7 @@ public:
     }
 
     /* Concrete implementation of AP_InertialSensor functions: */
+    uint16_t        init();
     bool            update();
     bool            new_data_available();
     float           gx();

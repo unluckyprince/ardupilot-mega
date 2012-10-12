@@ -3,11 +3,9 @@
 #ifndef __AP_INERTIAL_SENSOR_MPU6000_H__
 #define __AP_INERTIAL_SENSOR_MPU6000_H__
 
-#include <string.h>
 #include <stdint.h>
 
-#include "../AP_PeriodicProcess/AP_PeriodicProcess.h"
-#include "../AP_Math/AP_Math.h"
+#include <AP_Math.h>
 #include "AP_InertialSensor.h"
 
 #define MPU6000_CS_PIN       53        // APM pin connected to mpu6000's chip select pin
@@ -52,7 +50,7 @@ public:
     uint32_t            get_delta_time_micros();
 
 protected:
-    uint16_t                    _init_sensor( AP_PeriodicProcess * scheduler );
+    uint16_t                    _init_sensor();
 
 private:
 
@@ -75,8 +73,6 @@ private:
     static const int8_t         _accel_data_sign[3];
 
     static const uint8_t        _temp_data_index;
-
-    static AP_PeriodicProcess*  _scheduler;             // pointer to scheduler so that we can suspend/resume scheduler when we pull data from the MPU6000
 
     // ensure we can't initialise twice
     bool                        _initialised;
