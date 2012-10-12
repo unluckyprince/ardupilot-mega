@@ -1,10 +1,12 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-#include <FastSerial.h>
 
 #include "AP_InertialSensor.h"
 
-#include <SPI.h>
 #include <AP_Common.h>
+#include <AP_HAL.h>
+
+extern const AP_HAL::HAL& hal;
+
 
 #define FLASH_LEDS(on) do { if (flash_leds_cb != NULL) flash_leds_cb(on); } while (0)
 
@@ -25,11 +27,9 @@ AP_InertialSensor::AP_InertialSensor()
 
 void
 AP_InertialSensor::init( Start_style style,
-                         void (*delay_cb)(unsigned long t),
-                         void (*flash_leds_cb)(bool on),
-                         AP_PeriodicProcess *  scheduler )
+                         void (*flash_leds_cb)(bool on))
 {
-    _product_id = _init_sensor(scheduler);
+    _product_id = _init_sensor();
 
     // check scaling
     Vector3f accel_scale = _accel_scale.get();
@@ -40,7 +40,7 @@ AP_InertialSensor::init( Start_style style,
 
     if (WARM_START != style) {
         // do cold-start calibration for gyro only
-        _init_gyro(delay_cb, flash_leds_cb);
+        _init_gyro(flash_leds_cb);
     }
 }
 
@@ -54,24 +54,24 @@ void AP_InertialSensor::_save_parameters()
 }
 
 void
-AP_InertialSensor::init_gyro(void (*delay_cb)(unsigned long t), void (*flash_leds_cb)(bool on))
+AP_InertialSensor::init_gyro(void (*flash_leds_cb)(bool on))
 {
-    _init_gyro(delay_cb, flash_leds_cb);
+    _init_gyro(flash_leds_cb);
 
     // save calibration
     _save_parameters();
 }
 
 void
-AP_InertialSensor::_init_gyro(void (*delay_cb)(unsigned long t), void (*flash_leds_cb)(bool on))
+AP_InertialSensor::_init_gyro(void (*flash_leds_cb)(bool on))
 {
     Vector3f last_average, best_avg;
     Vector3f ins_gyro;
     float best_diff = 0;
 
     // cold start
-    delay_cb(100);
-    Serial.printf_P(PSTR("Init Gyro"));
+    hal.scheduler->delay(100);
+    hal.console->printf_P(PSTR("Init Gyro"));
 
     // remove existing gyro offsets
     _gyro_offset = Vector3f(0,0,0);
@@ -80,13 +80,13 @@ AP_InertialSensor::_init_gyro(void (*delay_cb)(unsigned long t), void (*flash_le
         // Mostly we are just flashing the LED's here
         // to tell the user to keep the IMU still
         FLASH_LEDS(true);
-        delay_cb(20);
+        hal.scheduler->delay(20);
 
         update();
         ins_gyro = get_gyro();
 
         FLASH_LEDS(false);
-        delay_cb(20);
+        hal.scheduler->delay(20);
     }
 
     // the strategy is to average 200 points over 1 second, then do it
@@ -102,7 +102,7 @@ AP_InertialSensor::_init_gyro(void (*delay_cb)(unsigned long t), void (*flash_le
         float diff_norm;
         uint8_t i;
 
-        Serial.printf_P(PSTR("*"));
+        hal.console->printf_P(PSTR("*"));
 
         gyro_sum.zero();
         for (i=0; i<200; i++) {
@@ -114,7 +114,7 @@ AP_InertialSensor::_init_gyro(void (*delay_cb)(unsigned long t), void (*flash_le
             } else if (i % 40 == 0) {
                 FLASH_LEDS(false);
             }
-            delay_cb(5);
+            hal.scheduler->delay(5);
         }
         gyro_avg = gyro_sum / i;
 
@@ -140,23 +140,23 @@ AP_InertialSensor::_init_gyro(void (*delay_cb)(unsigned long t), void (*flash_le
 
     // we've kept the user waiting long enough - use the best pair we
     // found so far
-    Serial.printf_P(PSTR("\ngyro did not converge: diff=%f dps\n"), ToDeg(best_diff));
+    hal.console->printf_P(PSTR("\ngyro did not converge: diff=%f dps\n"), ToDeg(best_diff));
 
     _gyro_offset = best_avg;
 }
 
 
 void
-AP_InertialSensor::init_accel(void (*delay_cb)(unsigned long t), void (*flash_leds_cb)(bool on))
+AP_InertialSensor::init_accel(void (*flash_leds_cb)(bool on))
 {
-    _init_accel(delay_cb, flash_leds_cb);
+    _init_accel(flash_leds_cb);
 
     // save calibration
     _save_parameters();
 }
 
 void
-AP_InertialSensor::_init_accel(void (*delay_cb)(unsigned long t), void (*flash_leds_cb)(bool on))
+AP_InertialSensor::_init_accel(void (*flash_leds_cb)(bool on))
 {
     int8_t flashcount = 0;
     Vector3f ins_accel;
@@ -166,9 +166,9 @@ AP_InertialSensor::_init_accel(void (*delay_cb)(unsigned long t), void (*flash_l
     float max_offset;
 
     // cold start
-    delay_cb(100);
+    hal.scheduler->delay(100);
 
-    Serial.printf_P(PSTR("Init Accel"));
+    hal.console->printf_P(PSTR("Init Accel"));
 
     // clear accelerometer offsets and scaling
     _accel_offset = Vector3f(0,0,0);
@@ -193,7 +193,7 @@ AP_InertialSensor::_init_accel(void (*delay_cb)(unsigned long t), void (*flash_l
         // We take some readings...
         for(int8_t i = 0; i < 50; i++) {
 
-            delay_cb(20);
+            hal.scheduler->delay(20);
             update();
             ins_accel = get_accel();
 
@@ -202,7 +202,7 @@ AP_InertialSensor::_init_accel(void (*delay_cb)(unsigned long t), void (*flash_l
 
             // display some output to the user
             if(flashcount == 5) {
-                Serial.printf_P(PSTR("*"));
+                hal.console->printf_P(PSTR("*"));
                 FLASH_LEDS(true);
             }
 
@@ -221,18 +221,18 @@ AP_InertialSensor::_init_accel(void (*delay_cb)(unsigned long t), void (*flash_l
         max_offset = (accel_offset.x > accel_offset.y) ? accel_offset.x : accel_offset.y;
         max_offset = (max_offset > accel_offset.z) ? max_offset : accel_offset.z;
 
-        delay_cb(500);
+        hal.scheduler->delay(500);
     } while (  total_change > AP_INERTIAL_SENSOR_ACCEL_TOT_MAX_OFFSET_CHANGE || max_offset > AP_INERTIAL_SENSOR_ACCEL_MAX_OFFSET);
 
     // set the global accel offsets
     _accel_offset = accel_offset;
 
-    Serial.printf_P(PSTR(" "));
+    hal.console->printf_P(PSTR(" "));
 
 }
 
 // perform accelerometer calibration including providing user instructions and feedback
-void AP_InertialSensor::calibrate_accel(void (*delay_cb)(unsigned long t), void (*flash_leds_cb)(bool on), void (*send_msg)(const prog_char_t *, ...))
+void AP_InertialSensor::calibrate_accel( void (*flash_leds_cb)(bool on) )
 {
     Vector3f samples[6];
     Vector3f new_offsets;
@@ -273,19 +273,17 @@ void AP_InertialSensor::calibrate_accel(void (*delay_cb)(unsigned long t), void 
                 msg = PSTR("on it's back");
                 break;
         }
-        if (send_msg == NULL) {
-            Serial.printf_P(PSTR("USER: Place APM %S and press any key.\n"), msg);
-        }else{
-            send_msg(PSTR("USER: Place APM %S and press any key.\n"), msg);
-        }
+
+        hal.console->printf_P(
+                PSTR("USER: Place APM %S and press any key.\n"), msg);
 
         // wait for user input
-        while( !Serial.available() ) {
-            delay_cb(20);
+        while( !hal.console->available() ) {
+            hal.scheduler->delay(20);
         }
         // clear unput buffer
-        while( Serial.available() ) {
-            Serial.read();
+        while( hal.console->available() ) {
+            hal.console->read();
         }
 
         // clear out any existing samples from ins
@@ -293,7 +291,7 @@ void AP_InertialSensor::calibrate_accel(void (*delay_cb)(unsigned long t), void 
 
         // wait until we have 32 samples
         while( num_samples_available() < 32 * SAMPLE_UNIT ) {
-            delay_cb(1);
+            hal.scheduler->delay(10);
         }
 
         // read samples from ins
@@ -306,28 +304,20 @@ void AP_InertialSensor::calibrate_accel(void (*delay_cb)(unsigned long t), void 
     // run the calibration routine
     if( _calibrate_accel(samples, new_offsets, new_scaling) ) {
 
-        if (send_msg == NULL) {
-            Serial.printf_P(PSTR("Calibration successful\n"));
-        }else{
-            send_msg(PSTR("Calibration successful\n"));
-        }
+        hal.console->printf_P(PSTR("Calibration successful\n"));
 
         // set and save calibration
         _accel_offset.set(new_offsets);
         _accel_scale.set(new_scaling);
         _save_parameters();
     }else{
-        if (send_msg == NULL) {
-            Serial.printf_P(PSTR("Calibration failed\n"));
-        }else{
-            send_msg(PSTR("Calibration failed\n"));
-        }
+        hal.console->printf_P(PSTR("Calibration failed\n"));
 
         // restore original scaling and offsets
         _accel_offset.set(orig_offset);
         _accel_scale.set(orig_scale);
     }
-    delay_cb(100);
+    hal.scheduler->delay(100);
 }
 
 // _calibrate_model - perform low level accel calibration
@@ -335,7 +325,8 @@ void AP_InertialSensor::calibrate_accel(void (*delay_cb)(unsigned long t), void 
 // accel_offsets are output from the calibration routine
 // accel_scale are output from the calibration routine
 // returns true if successful
-bool AP_InertialSensor::_calibrate_accel( Vector3f accel_sample[6], Vector3f& accel_offsets, Vector3f& accel_scale )
+bool AP_InertialSensor::_calibrate_accel( Vector3f accel_sample[6],
+        Vector3f& accel_offsets, Vector3f& accel_scale )
 {
     int16_t i;
     int16_t num_iterations = 0;
@@ -388,11 +379,13 @@ bool AP_InertialSensor::_calibrate_accel( Vector3f accel_sample[6], Vector3f& ac
     accel_offsets.z = beta[2] * accel_scale.z;
 
     // sanity check scale
-    if( accel_scale.is_nan() || fabs(accel_scale.x-1.0) > 0.1 || fabs(accel_scale.y-1.0) > 1.1 || fabs(accel_scale.z-1.0) > 1.1 ) {
+    if( accel_scale.is_nan() || fabs(accel_scale.x-1.0) > 0.1
+     || fabs(accel_scale.y-1.0) > 1.1 || fabs(accel_scale.z-1.0) > 1.1 ) {
         success = false;
     }
     // sanity check offsets (2.0 is roughly 2/10th of a G, 5.0 is roughly half a G)
-    if( accel_offsets.is_nan() || fabs(accel_offsets.x) > 2.0 || fabs(accel_offsets.y) > 2.0 || fabs(accel_offsets.z) > 5.0 ) {
+    if( accel_offsets.is_nan() || fabs(accel_offsets.x) > 2.0
+     || fabs(accel_offsets.y) > 2.0 || fabs(accel_offsets.z) > 5.0 ) {
         success = false;
     }
 
@@ -400,7 +393,8 @@ bool AP_InertialSensor::_calibrate_accel( Vector3f accel_sample[6], Vector3f& ac
     return success;
 }
 
-void AP_InertialSensor::_calibrate_update_matrices(float dS[6], float JS[6][6], float beta[6], float data[3])
+void AP_InertialSensor::_calibrate_update_matrices(float dS[6], float JS[6][6],
+                                    float beta[6], float data[3])
 {
     int16_t j, k;
     float dx, b;
