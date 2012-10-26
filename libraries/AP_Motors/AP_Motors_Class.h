@@ -1,20 +1,13 @@
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
 
-#ifndef __AP_MOTORS_H__
-#define __AP_MOTORS_H__
+#ifndef __AP_MOTORS_CLASS_H__
+#define __AP_MOTORS_CLASS_H__
 
-#include "AP_Motors_Class.h"
-#include "AP_MotorsMatrix.h"
-#include "AP_MotorsTri.h"
-#include "AP_MotorsQuad.h"
-#include "AP_MotorsHexa.h"
-#include "AP_MotorsY6.h"
-#include "AP_MotorsOcta.h"
-#include "AP_MotorsOctaQuad.h"
-#include "AP_MotorsHeli.h"
+#include <AP_Common.h>
+#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
+#include <AP_Curve.h>       // Curve used to linearlise throttle pwm to thrust
+#include <RC_Channel.h>     // RC Channel Library
 
-#endif // __AP_MOTORS_H__
-
-<<<<<<< HEAD
 // offsets for motors in motor_out, _motor_filtered and _motor_to_channel_map arrays
 #define AP_MOTORS_MOT_1 0
 #define AP_MOTORS_MOT_2 1
@@ -185,7 +178,4 @@ protected:
     AP_Int8             _throttle_curve_max;  // throttle which produces the maximum thrust.  expressed as a percentage (i.e. 0 ~ 100 ) of the full throttle range
     uint8_t             _reached_limit;                // bit mask to record which motor limits we hit (if any) during most recent output.  Used to provide feedback to attitude controllers
 };
-
-#endif  // AP_MOTORS
-=======
->>>>>>> AP_Motors: moved class def to a different header
+#endif  // __AP_MOTORS_CLASS_H__
