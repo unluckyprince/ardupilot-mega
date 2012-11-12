@@ -1,7 +1,7 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
 
-#include <FastSerial.h>
 #include <AP_Common.h>
+#include <AP_Progmem.h>
 #include <AP_Param.h>
 #include <AP_Mount.h>
 
