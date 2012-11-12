@@ -37,10 +37,10 @@ Menu::run(void)
     uint8_t len, i;
     uint8_t argc;
     int c;
-    char                *s;
+    char *s;
 
     // loop performing commands
-    for (;; ) {
+    for (;;) {
 
         // run the pre-prompt function, if one is defined
         if ((NULL != _ppfunc) && !_ppfunc())
@@ -48,7 +48,7 @@ Menu::run(void)
 
         // loop reading characters from the input
         len = 0;
-        hal.console->printf("%S] ", FPSTR(_prompt));
+        hal.console->printf_P(PSTR("%S] "), FPSTR(_prompt));
         for (;; ) {
             c = hal.console->read();
             if (-1 == c)
@@ -130,7 +130,7 @@ Menu::run(void)
 
         if (cmd_found==false)
         {
-            hal.console->println("Invalid command, type 'help'");
+            hal.console->println_P(PSTR("Invalid command, type 'help'"));
         }
 
     }
@@ -142,9 +142,9 @@ Menu::_help(void)
 {
     int i;
 
-    hal.console->println("Commands:");
+    hal.console->println_P(PSTR("Commands:"));
     for (i = 0; i < _entries; i++)
-        hal.console->printf("  %S\n", FPSTR(_commands[i].command));
+        hal.console->printf_P(PSTR("  %S\n"), FPSTR(_commands[i].command));
 }
 
 // run the n'th command in the menu
