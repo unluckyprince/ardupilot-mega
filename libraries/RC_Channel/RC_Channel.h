@@ -106,7 +106,7 @@ private:
     uint8_t         _ch_out;
 };
 
-// This is ugly, but it fixes compilation on arduino
+// This is ugly, but it fixes poorly architected library
 #include "RC_Channel_aux.h"
 
 #endif
