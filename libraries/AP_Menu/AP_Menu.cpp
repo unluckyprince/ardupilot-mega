@@ -4,14 +4,17 @@
 // Simple commandline menu system.
 //
 
-#include <FastSerial.h>
 #include <AP_Common.h>
+#include <AP_Progmem.h>
+#include <AP_HAL.h>
 
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <avr/pgmspace.h>
 
 #include "AP_Menu.h"
+
+extern const AP_HAL::HAL& hal;
 
 // statics
 char Menu::_inbuf[MENU_COMMANDLINE_MAX];
@@ -45,32 +48,32 @@ Menu::run(void)
 
         // loop reading characters from the input
         len = 0;
-        Serial.printf("%S] ", FPSTR(_prompt));
+        hal.console->printf("%S] ", FPSTR(_prompt));
         for (;; ) {
-            c = Serial.read();
+            c = hal.console->read();
             if (-1 == c)
                 continue;
             // carriage return -> process command
             if ('\r' == c) {
                 _inbuf[len] = '\0';
-                Serial.write('\r');
-                Serial.write('\n');
+                hal.console->write('\r');
+                hal.console->write('\n');
                 break;
             }
             // backspace
             if ('\b' == c) {
                 if (len > 0) {
                     len--;
-                    Serial.write('\b');
-                    Serial.write(' ');
-                    Serial.write('\b');
+                    hal.console->write('\b');
+                    hal.console->write(' ');
+                    hal.console->write('\b');
                     continue;
                 }
             }
             // printable character
             if (isprint(c) && (len < (MENU_COMMANDLINE_MAX - 1))) {
                 _inbuf[len++] = c;
-                Serial.write((char)c);
+                hal.console->write((char)c);
                 continue;
             }
         }
@@ -127,7 +130,7 @@ Menu::run(void)
 
         if (cmd_found==false)
         {
-            Serial.println("Invalid command, type 'help'");
+            hal.console->println("Invalid command, type 'help'");
         }
 
     }
@@ -139,9 +142,9 @@ Menu::_help(void)
 {
     int i;
 
-    Serial.println("Commands:");
+    hal.console->println("Commands:");
     for (i = 0; i < _entries; i++)
-        Serial.printf("  %S\n", FPSTR(_commands[i].command));
+        hal.console->printf("  %S\n", FPSTR(_commands[i].command));
 }
 
 // run the n'th command in the menu
