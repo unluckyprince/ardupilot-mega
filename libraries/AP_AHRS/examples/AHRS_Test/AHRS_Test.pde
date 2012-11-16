@@ -126,7 +126,7 @@ void loop(void)
     ahrs.update();
     counter++;
 
-    if (now - last_print >= 0.5e6) {
+    if (now - last_print >= 100000 /* 100ms : 10hz */) {
         Vector3f drift  = ahrs.get_gyro_drift();
         hal.console->printf_P(
                 PSTR("r:%4.1f  p:%4.1f y:%4.1f "
