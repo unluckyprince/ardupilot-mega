@@ -8,6 +8,7 @@
 
 const AP_HAL::HAL& hal = AP_HAL_AVR_APM2;
 
+#include <AP_Buffer.h>
 #include <Filter.h>
 #include <AP_Baro.h>
 

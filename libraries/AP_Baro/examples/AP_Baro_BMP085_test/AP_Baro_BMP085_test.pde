@@ -9,6 +9,7 @@
 #include <AP_Param.h>
 #include <AP_Math.h>
 #include <AP_HAL.h>
+#include <AP_Buffer.h>
 #include <Filter.h>
 #include <AP_Baro.h>
 
