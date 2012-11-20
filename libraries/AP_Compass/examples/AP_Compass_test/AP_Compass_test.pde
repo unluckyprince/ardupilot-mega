@@ -97,7 +97,7 @@ void loop()
                       compass.mag_x,
                       compass.mag_y,
                       compass.mag_z, 
-		              I2c.lockup_count());
+		              hal.i2c->lockup_count());
 
         // display offsets
         hal.console->printf(" offsets(%.2f, %.2f, %.2f)",
