@@ -171,7 +171,7 @@ const AP_Param::GroupInfo AP_Mount::var_info[] PROGMEM = {
     AP_GROUPEND
 };
 
-extern RC_Channel* rc_ch[NUM_CHANNELS];
+extern RC_Channel* rc_ch[8];
 
 AP_Mount::AP_Mount(const struct Location *current_loc, GPS *&gps, AP_AHRS *ahrs, uint8_t id) :
     _gps(gps)
