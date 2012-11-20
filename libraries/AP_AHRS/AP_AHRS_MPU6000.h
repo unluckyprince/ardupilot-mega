@@ -25,7 +25,6 @@ public:
     // Constructors
     AP_AHRS_MPU6000(AP_InertialSensor_MPU6000 *mpu6000, GPS *&gps) :
         AP_AHRS(mpu6000, gps),
-        _mpu6000(mpu6000)
         // ki and ki_yaw are experimentally derived from the simulator
         _ki(0.0087),
         _ki_yaw(0.01),
