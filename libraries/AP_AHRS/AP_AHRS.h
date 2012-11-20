@@ -53,13 +53,8 @@ public:
         _airspeed = airspeed;
     }
 
-<<<<<<< HEAD
-    AP_InertialSensor*            get_ins() {
+    AP_InertialSensor* get_ins() {
 	    return _ins;
-=======
-    IMU* get_imu() { 
-	    return _imu; 
->>>>>>> AP_AHRS: port to AP_HAL
     }
 
     // Methods
