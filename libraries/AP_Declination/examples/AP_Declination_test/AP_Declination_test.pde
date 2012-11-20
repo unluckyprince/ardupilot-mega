@@ -6,6 +6,7 @@
 #include <AP_HAL.h>
 #include <AP_Math.h>
 #include <AP_Declination.h>
+#include <AP_Buffer.h>
 #include <Filter.h>
 
 #include <AP_HAL_AVR.h>
