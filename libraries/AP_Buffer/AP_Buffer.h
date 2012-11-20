@@ -3,12 +3,10 @@
 /// @file	AP_Buffer.h
 /// @brief	fifo buffer template class
 
-#ifndef AP_BUFFER
-#define AP_BUFFER
+#ifndef __AP_BUFFER_H__
+#define __AP_BUFFER_H__
 
-#include <FastSerial.h>
-#include <AP_Common.h>
-#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
+#include <stdint.h>
 
 /// @class      AP_Buffer
 template <class T, uint8_t SIZE>
@@ -190,4 +188,4 @@ void AP_Buffer<Vector3f,SIZE>::print_buffer()
 }
 */
 
-#endif  // AP_BUFFER
+#endif  // __AP_BUFFER_H__
