@@ -63,7 +63,6 @@ void setup()
     rc_4.set_type(RC_CHANNEL_TYPE_ANGLE_RAW);
 
     rc_5.set_range(0,1000);
-    rc_5.set_filter(false);
 
     rc_6.set_range(200,800);
 
