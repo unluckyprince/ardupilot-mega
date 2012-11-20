@@ -7,13 +7,13 @@
 
 #include <AP_GPS.h>
 #include <AP_AHRS.h>
-#include <AP_IMU.h>
 #include <AP_InertialSensor.h>
 #include <AP_Compass.h>
 #include <AP_Declination.h>
 #include <AP_Airspeed.h>
 #include <AP_ADC.h>
 #include <AP_Baro.h>
+#include <AP_Buffer.h>
 #include <Filter.h>
 #include <GCS_MAVLink.h>
 #include <RC_Channel.h>
