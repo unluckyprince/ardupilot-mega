@@ -7,6 +7,8 @@
 	of the License, or (at your option) any later version.
 */
 #include <AP_AHRS.h>
+#include <AP_HAL.h>
+extern const AP_HAL::HAL& hal;
 
 // table of user settable parameters
 const AP_Param::GroupInfo AP_AHRS::var_info[] PROGMEM = {
@@ -100,7 +102,8 @@ void AP_AHRS::add_trim(float roll_in_radians, float pitch_in_radians)
     Vector3f trim = _trim.get();
 
     // debug -- remove me!
-    Serial.printf_P(PSTR("\nadd_trim before R:%4.2f P:%4.2f\n"),ToDeg(trim.x),ToDeg(trim.y));
+    hal.console->printf_P(PSTR("\nadd_trim before R:%4.2f P:%4.2f\n"),
+            ToDeg(trim.x),ToDeg(trim.y));
 
     // add new trim
     trim.x = constrain(trim.x + roll_in_radians, ToRad(-10.0), ToRad(10.0));
@@ -110,5 +113,6 @@ void AP_AHRS::add_trim(float roll_in_radians, float pitch_in_radians)
     _trim.set_and_save(trim);
 
     // debug -- remove me!
-    Serial.printf_P(PSTR("add_trim after R:%4.2f P:%4.2f\n"),ToDeg(trim.x),ToDeg(trim.y));
+    hal.console->printf_P(PSTR("add_trim after R:%4.2f P:%4.2f\n"),
+            ToDeg(trim.x),ToDeg(trim.y));
 }
