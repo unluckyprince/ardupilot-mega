@@ -272,12 +272,8 @@ bool AP_Compass_HMC5843::read()
             return false;
         }
         if (!re_initialise()) {
-<<<<<<< HEAD
-            _retry_time = millis() + 1000;
-			I2c.setSpeed(false);
-=======
             _retry_time = hal.scheduler->millis() + 1000;
->>>>>>> AP_Compass: ported to AP_HAL
+			hal.i2c->setHighSpeed(false);
             return false;
         }
     }
