@@ -1,12 +1,5 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-#include <FastSerial.h>
-#include <ThirdOrderCompFilter.h>
-
-#if defined(ARDUINO) && ARDUINO >= 100
- #include "Arduino.h"
-#else
- #include <wiring.h>
-#endif
+#include "ThirdOrderCompFilter.h"
 
 // Public Methods //////////////////////////////////////////////////////////////
 
