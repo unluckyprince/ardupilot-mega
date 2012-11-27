@@ -14,8 +14,8 @@
 #define __MODE_FILTER_H__
 
 #include <inttypes.h>
-#include <Filter.h>
-#include <FilterWithBuffer.h>
+#include "FilterClass.h"
+#include "FilterWithBuffer.h"
 
 template <class T, uint8_t FILTER_SIZE>
 class ModeFilter : public FilterWithBuffer<T,FILTER_SIZE>

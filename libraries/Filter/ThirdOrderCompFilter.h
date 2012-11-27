@@ -13,7 +13,6 @@
 #ifndef __THIRD_ORDER_COMP_FILTER_H__
 #define __THIRD_ORDER_COMP_FILTER_H__
 
-#include <inttypes.h>
 #include <AP_Math.h>               // Math library for matrix and vector math
 #include <AP_Buffer.h>          // ArduPilot general purpose FIFO buffer
 
@@ -34,37 +33,37 @@ public:
         };
 
     // update_gains - update gains from time constant (given in seconds)
-    virtual void        update_gains(float time_constant_seconds_xy, float time_constant_seconds_z);
+    void        update_gains(float time_constant_seconds_xy, float time_constant_seconds_z);
 
     // set_3rd_order - resets the first order value (i.e. position)
-    virtual void        set_3rd_order_xy(float x, float y);
-    virtual void        set_3rd_order_z(float z);
+    void        set_3rd_order_xy(float x, float y);
+    void        set_3rd_order_z(float z);
 
     // set_2nd_order - resets the second order value (i.e. velocity)
-    virtual void        set_2nd_order_xy(float x, float y);
-    virtual void        set_2nd_order_z(float z);
+    void        set_2nd_order_xy(float x, float y);
+    void        set_2nd_order_z(float z);
 
     // correct_3rd_order_z - correct accelerometer offsets using barometer or gps
-    virtual void        correct_3rd_order_xy(float x, float y, Matrix3f& dcm_matrix, float deltat);
-    virtual void        correct_3rd_order_z(float third_order_sample, Matrix3f& dcm_matrix, float deltat);
+    void        correct_3rd_order_xy(float x, float y, Matrix3f& dcm_matrix, float deltat);
+    void        correct_3rd_order_z(float third_order_sample, Matrix3f& dcm_matrix, float deltat);
 
     // add_1st_order_sample - Add a new 1st order sample (i.e. acceleration) to the filter, but don't recalculate
-    virtual void        add_1st_order_sample(Vector3f& sample) { _first_order_sample = sample; }
+    void        add_1st_order_sample(Vector3f& sample) { _first_order_sample = sample; }
 
     // recalculate the 2nd and 3rd order estimates
-    virtual void        calculate(float deltat, Matrix3f& dcm_matrix);
+    void        calculate(float deltat, Matrix3f& dcm_matrix);
 
     // return the new estimate for the 3rd order (i.e. position)
-    virtual Vector3f&   get_3rd_order_estimate() { _comp_h_total = _comp_h + _comp_h_correction; return _comp_h_total; }
+    Vector3f&   get_3rd_order_estimate() { _comp_h_total = _comp_h + _comp_h_correction; return _comp_h_total; }
 
     // return the new estimate for the 2nd order (i.e. velocity)
-    virtual Vector3f&   get_2nd_order_estimate() { return _comp_v; }
+    Vector3f&   get_2nd_order_estimate() { return _comp_v; }
 
     // set the 1st order correction vector (i.e. correction to be applied to the accelerometer)
-    virtual void        set_1st_order_correction( const Vector3f &correction_vector) { _comp_k1o = correction_vector; }
+    void        set_1st_order_correction( const Vector3f &correction_vector) { _comp_k1o = correction_vector; }
 
     // get the 1st order correction vector (i.e. correction to be applied to the accelerometer)
-    virtual Vector3f&   get_1st_order_correction( void ) { return _comp_k1o; }
+    Vector3f&   get_1st_order_correction( void ) { return _comp_k1o; }
 
 //private:
     float           _k1_xy;                                 // 1st order error correction gain for horizontal position

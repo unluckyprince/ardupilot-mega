@@ -13,9 +13,8 @@
 #ifndef __DERIVATIVE_FILTER_H__
 #define __DERIVATIVE_FILTER_H__
 
-#include <inttypes.h>
-#include <Filter.h>
-#include <FilterWithBuffer.h>
+#include "FilterClass.h"
+#include "FilterWithBuffer.h"
 
 // 1st parameter <T> is the type of data being filtered.
 // 2nd parameter <FILTER_SIZE> is the number of elements in the filter

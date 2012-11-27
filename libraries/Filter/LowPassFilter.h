@@ -14,8 +14,7 @@
 #ifndef __LOW_PASS_FILTER_H__
 #define __LOW_PASS_FILTER_H__
 
-#include <inttypes.h>
-#include <Filter.h>
+#include "FilterClass.h"
 
 // 1st parameter <T> is the type of data being filtered.
 template <class T>
