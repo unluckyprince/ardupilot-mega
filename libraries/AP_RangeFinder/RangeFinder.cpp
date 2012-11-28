@@ -11,16 +11,7 @@
  *
  *       This has the basic functions that all RangeFinders need implemented
  */
-
-// AVR LibC Includes
-#if defined(ARDUINO) && ARDUINO >= 100
- #include "Arduino.h"
-#else
- #include "WConstants.h"
-#endif
 #include "RangeFinder.h"
-
-
 
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -41,6 +32,7 @@ int RangeFinder::read()
     temp_dist = convert_raw_to_distance(raw_value);
 
     // ensure distance is within min and max
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
     temp_dist = constrain(temp_dist, min_distance, max_distance);
 
     distance = _mode_filter->apply(temp_dist);
