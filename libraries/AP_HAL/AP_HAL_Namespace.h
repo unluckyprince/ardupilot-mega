@@ -12,6 +12,7 @@ namespace AP_HAL {
     /* Toplevel class names for drivers: */
     class UARTDriver;
     class I2CDriver;
+    class SPIDevice;
     class SPIDriver;
     class AnalogSource;
     class AnalogIn;
@@ -23,6 +24,7 @@ namespace AP_HAL {
     class RCInput;
     class RCOutput;
     class Scheduler;
+    class Semaphore;
 
     class EmptyUARTDriver;
 
