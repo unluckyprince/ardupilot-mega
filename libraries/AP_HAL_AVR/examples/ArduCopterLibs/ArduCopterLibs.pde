@@ -34,6 +34,7 @@
 #include <AP_Mount.h>           // Camera/Antenna mount
 #include <AP_Airspeed.h>        // needed for AHRS build
 #include <AP_InertialNav.h>     // ArduPilot Mega inertial navigation library
+#include <GCS_MAVLink.h>
 #include <memcheck.h>
 
 const AP_HAL::HAL& hal = AP_HAL_AVR_APM2;
