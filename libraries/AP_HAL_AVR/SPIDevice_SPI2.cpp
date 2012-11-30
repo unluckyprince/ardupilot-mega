@@ -3,42 +3,53 @@
 #include <avr/io.h>
 
 #include <AP_HAL.h>
-#include "SPIDriver.h"
+#include "SPIDevices.h"
 #include "GPIO.h"
+#include "Semaphore.h"
 using namespace AP_HAL_AVR;
 
 extern const AP_HAL::HAL& hal;
 
-AP_HAL_AVR::AVRSemaphore AVRSPI2Device::_semaphore;
+AVRSemaphore AVRSPI2DeviceDriver::_semaphore;
 
-AP_HAL::Semaphore* AVRSPI2Device::get_semaphore() {
+void AVRSPI2DeviceDriver::init() {
+    /* UMSELn1 and UMSELn2: USART in SPI Master mode */
+    UCSR2C = _BV(UMSEL21) | _BV(UMSEL20);
+    /* Enable RX and TX. */
+    UCSR2B = _BV(RXEN2) | _BV(TXEN2);
+}
+
+AP_HAL::Semaphore* AVRSPI2DeviceDriver::get_semaphore() {
     return &_semaphore;
 }
 
-void AVRSPI2Device::set_transfer_mode(uint8_t mode) {
+void AVRSPI2DeviceDriver::cs_assert() {
+    /* set the device UCSRnC configuration bits.
+     * only sets data order, clock phase, and clock polarity bits (lowest
+     * three bits)  */
+    const uint8_t new_ucsr2c = UCSR2C | (_ucsr2c & (0x07));
+    UCSR2C = new_ucsr2c;
+    /* set the device baud rate */
+    UBRR2 = _ubrr2;
 
-}
-
-void AVRSPI2Device::set_freq(uint32_t freq_hz) {
-
-}
-
-void AVRSPI2Device::cs_assert() {
     _cs_pin->write(0);
 }
 
-void AVRSPI2Device::cs_release() {
+void AVRSPI2DeviceDriver::cs_release() {
     _cs_pin->write(1);
 }
 
-uint8_t AVRSPI2Device::transfer(uint8_t data) {
+uint8_t AVRSPI2DeviceDriver::transfer(uint8_t data) {
+    /* Wait for empty transmit buffer */
+    while ( !( UCSR2A & _BV(UDRE2)) ) ;
 
+    /* Put data into buffer, sends the data */
+    UDR2 = data;
+
+    /* Wait for data to be received */
+    while ( !(UCSR2A & _BV(RXC2)) ) ;
+
+    /* Get and return received data from buffer */
+    return UDR2;
 }
 
-uint8_t AVRSPI2Device::_divider_bits(uint8_t div) {
-
-}
-
-void AVRSPI2Device::_set_clock_divider_bits(uint8_t b) {
-
-}

@@ -7,11 +7,11 @@ namespace AP_HAL_AVR {
 
     class AVRUARTDriver;
     class AVRI2CDriver;
-    class APM1SPIDriver;
-    class APM2SPIDriver;
-    class AVRSPI0Device;
-    class AVRSPI2Device;
-    class AVRSPI3Device;
+    class APM1SPIDeviceManager;
+    class APM2SPIDeviceManager;
+    class AVRSPI0DeviceDriver;
+    class AVRSPI2DeviceDriver;
+    class AVRSPI3DeviceDriver;
     class ADCSource;
     class AVRAnalogIn;
     class AVREEPROMStorage;

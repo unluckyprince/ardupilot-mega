@@ -31,8 +31,8 @@ static AVRUARTDriverInstance(avrUart3Driver, 3);
 static EmptyUARTDriver  emptyUartDriver;
 
 static AVRI2CDriver     avrI2CDriver;
-static APM1SPIDriver    apm1SPIDriver;
-static APM2SPIDriver    apm2SPIDriver;
+static APM1SPIDeviceManager apm1SPIDriver;
+static APM2SPIDeviceManager apm2SPIDriver;
 static AVRAnalogIn      avrAnalogIn;
 static AVREEPROMStorage avrEEPROMStorage;
 static APM1Dataflash    apm1Dataflash;

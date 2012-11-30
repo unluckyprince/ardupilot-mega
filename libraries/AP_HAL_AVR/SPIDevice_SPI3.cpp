@@ -3,43 +3,67 @@
 #include <avr/io.h>
 
 #include <AP_HAL.h>
-#include "SPIDriver.h"
+#include "SPIDevices.h"
 #include "GPIO.h"
+#include "Semaphore.h"
+
+#include "pins_arduino_mega.h"
+
 using namespace AP_HAL_AVR;
+
+#define SPI3_MOSI 14
+#define SPI3_MISO 15
 
 extern const AP_HAL::HAL& hal;
 
-AP_HAL_AVR::AVRSemaphore AVRSPI3Device::_semaphore;
+AVRSemaphore AVRSPI3DeviceDriver::_semaphore;
 
-AP_HAL::Semaphore* AVRSPI3Device::get_semaphore() {
+void AVRSPI3DeviceDriver::init() {
+    /* the spi3 (USART3) sck pin PORTJ2 is not enumerated
+     * by the arduino pin numbers, so we access it directly
+     * with AVRDigitalSource. */
+    AVRDigitalSource spi3_sck(_BV(2), PJ);
+    spi3_sck.mode(GPIO_OUTPUT);
+    hal.gpio->pinMode(SPI3_MOSI, GPIO_OUTPUT);
+    hal.gpio->pinMode(SPI3_MISO, GPIO_INPUT);
+
+    /* UMSELn1 and UMSELn2: USART in SPI Master mode */
+    UCSR3C = _BV(UMSEL31) | _BV(UMSEL30);
+    /* Enable RX and TX. */
+    UCSR3B = _BV(RXEN3) | _BV(TXEN3);
+}
+
+AP_HAL::Semaphore* AVRSPI3DeviceDriver::get_semaphore() {
     return &_semaphore;
 }
 
-void AVRSPI3Device::set_transfer_mode(uint8_t mode) {
+void AVRSPI3DeviceDriver::cs_assert() {
+    /* set the device UCSRnC configuration bits.
+     * only sets data order, clock phase, and clock polarity bits (lowest
+     * three bits)  */
+    const uint8_t new_ucsr3c = UCSR3C | (_ucsr3c & (0x07));
+    UCSR3C = new_ucsr3c;
+    /* set the device baud rate */
+    UBRR3 = _ubrr3;
 
-}
-
-void AVRSPI3Device::set_freq(uint32_t freq_hz) {
-
-}
-
-void AVRSPI3Device::cs_assert() {
     _cs_pin->write(0);
 }
 
-void AVRSPI3Device::cs_release() {
+void AVRSPI3DeviceDriver::cs_release() {
     _cs_pin->write(1);
 }
 
-uint8_t AVRSPI3Device::transfer(uint8_t data) {
+uint8_t AVRSPI3DeviceDriver::transfer(uint8_t data) {
+    /* Wait for empty transmit buffer */
+    while ( !( UCSR3A & _BV(UDRE3)) ) ;
 
-}
+    /* Put data into buffer, sends the data */
+    UDR3 = data;
 
-uint8_t AVRSPI3Device::_divider_bits(uint8_t div) {
+    /* Wait for data to be received */
+    while ( !(UCSR3A & _BV(RXC3)) ) ;
 
-}
-
-void AVRSPI3Device::_set_clock_divider_bits(uint8_t b) {
-
+    /* Get and return received data from buffer */
+    return UDR3;
 }
 
