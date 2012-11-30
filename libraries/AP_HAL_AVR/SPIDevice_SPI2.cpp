@@ -27,6 +27,10 @@ void AVRSPI2DeviceDriver::init() {
     UCSR2C = _BV(UMSEL21) | _BV(UMSEL20);
     /* Enable RX and TX. */
     UCSR2B = _BV(RXEN2) | _BV(TXEN2);
+
+    /* Setup chip select pin */
+    _cs_pin->mode(GPIO_OUTPUT);
+    _cs_pin->write(1);
 }
 
 AP_HAL::Semaphore* AVRSPI2DeviceDriver::get_semaphore() {

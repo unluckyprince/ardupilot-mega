@@ -31,6 +31,10 @@ void AVRSPI3DeviceDriver::init() {
     UCSR3C = _BV(UMSEL31) | _BV(UMSEL30);
     /* Enable RX and TX. */
     UCSR3B = _BV(RXEN3) | _BV(TXEN3);
+
+    /* Setup chip select pin */
+    _cs_pin->mode(GPIO_OUTPUT);
+    _cs_pin->write(1);
 }
 
 AP_HAL::Semaphore* AVRSPI3DeviceDriver::get_semaphore() {
