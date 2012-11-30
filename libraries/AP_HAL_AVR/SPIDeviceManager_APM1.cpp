@@ -1,4 +1,5 @@
 
+#include <avr/io.h>
 #include <AP_HAL.h>
 #include "SPIDriver.h"
 #include "SPIDevices.h"
@@ -9,15 +10,24 @@ using namespace AP_HAL_AVR;
 extern const AP_HAL::HAL& hal;
 
 void APM1SPIDeviceManager::init(void* machtnichts) {
+    /* dataflow cs is on arduino pin 53, PORTB0 */
     AVRDigitalSource* df_cs = new AVRDigitalSource(_BV(0), PB);
-    _dataflash = new AVRSPI0DeviceDriver(df_cs, 0, 0);
+    /* dataflash: divide clock by 2 to 8Mhz
+     * spsr gets bit SPI2X */
+    _dataflash = new AVRSPI0DeviceDriver(df_cs, 0, _BV(SPI2X));
     _dataflash->init();
 
+    /* optflow cs is on Arduino pin 34, PORTC3 */
     AVRDigitalSource* opt_cs = new AVRDigitalSource(_BV(3), PC);
-    _optflow = new AVRSPI0DeviceDriver(opt_cs, 0/* XXX clock div by 8 */, 0);
+    /* optflow: divide clock by 8 to 2Mhz
+     * spcr gets bit SPR0, spsr gets bit SPI2X */
+    _optflow = new AVRSPI0DeviceDriver(opt_cs, _BV(SPR0), 0);
     _optflow->init();
 
+    /* adc cs is on Arduino pin 33, PORTC4 */
     AVRDigitalSource* adc_cs = new AVRDigitalSource(_BV(4), PC);
+    /* adc: ubbr2 gets value of 2 to run at 2.6Mhz
+     * (config value cribbed from AP_ADC_ADS7844 driver pre-port) */
     _adc = new AVRSPI2DeviceDriver(adc_cs, 0, 2);
     _adc->init();
 }

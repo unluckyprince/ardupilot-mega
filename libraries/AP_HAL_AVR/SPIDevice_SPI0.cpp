@@ -23,6 +23,9 @@ void AVRSPI0DeviceDriver::init() {
 
     _cs_pin->mode(GPIO_OUTPUT);
     _cs_pin->write(1);
+
+    /* Enable the SPI0 peripheral as a master */
+    SPCR = _BV(SPE) | _BV(MSTR);
 }
 
 AP_HAL::Semaphore* AVRSPI0DeviceDriver::get_semaphore() {
@@ -30,10 +33,15 @@ AP_HAL::Semaphore* AVRSPI0DeviceDriver::get_semaphore() {
 }
 
 void AVRSPI0DeviceDriver::cs_assert() {
-    uint8_t new_spcr = SPCR | (_spcr & (CPOL | CPHA | SPR1 | SPR0));
+    const uint8_t valid_spcr_mask = 
+        (_BV(CPOL) | _BV(CPHA) | _BV(SPR1) | _BV(SPR0));
+    uint8_t new_spcr = SPCR | (_spcr & valid_spcr_mask);
     SPCR = new_spcr;  
-    uint8_t new_spsr = SPSR | (_spsr & (SPI2X));
+
+    const uint8_t valid_spsr_mask = _BV(SPI2X);
+    uint8_t new_spsr = SPSR | (_spsr & valid_spsr_mask);
     SPSR = new_spsr;
+
     _cs_pin->write(0);
 }
 
@@ -43,6 +51,10 @@ void AVRSPI0DeviceDriver::cs_release() {
 
 uint8_t AVRSPI0DeviceDriver::transfer(uint8_t data) {
     SPDR = data;
+    if (SPSR & _BV(WCOL)) {
+        hal.console->println_P(PSTR("PANIC: SPI0 write collision"));
+        return 0;
+    }
     while(!(SPSR & _BV(SPIF)));
     return SPDR;
 }

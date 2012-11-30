@@ -1,4 +1,5 @@
 
+#include <avr/io.h>
 #include <AP_HAL.h>
 #include "SPIDriver.h"
 #include "SPIDevices.h"
@@ -8,23 +9,35 @@ using namespace AP_HAL_AVR;
 extern const AP_HAL::HAL& hal;
 
 void APM2SPIDeviceManager::init(void* machtnichts) {
-
+   
+    /* ms5611 cs is on Arduino pin 40, PORTG1 */
     AVRDigitalSource* ms5611_cs = new AVRDigitalSource(_BV(1), PG);
-    _ms5611 = new AVRSPI0DeviceDriver(ms5611_cs, 0, 0);
+    /* ms5611: divide clock by 32 to 500khz
+     * spcr gets bit SPR1,  spsr gets bit SPI2X */
+    _ms5611 = new AVRSPI0DeviceDriver(ms5611_cs, _BV(SPR1), _BV(SPI2X));
     _ms5611->init();
 
+    /* ms5611 cs is on Arduino pin 53, PORTB0 */
     AVRDigitalSource* mpu6k_cs = new AVRDigitalSource(_BV(0), PB);
-    _mpu6k = new AVRSPI0DeviceDriver(mpu6k_cs, 0, 0);
+    /* mpu6k: divide clock by 32 to 500khz
+     * spcr gets bit SPR1,  spsr gets bit SPI2X */
+    _mpu6k = new AVRSPI0DeviceDriver(mpu6k_cs, _BV(SPR1), _BV(SPI2X));
     _mpu6k->init();
-    
+   
+    /* optflow cs is on Arduino pin A3, PORTF3 */
     AVRDigitalSource* optflow_cs = new AVRDigitalSource(_BV(3), PF);
-    _optflow_spi0 = new AVRSPI0DeviceDriver(optflow_cs, 0, 0);
+    /* optflow: divide clock by 8 to 2Mhz
+     * spcr gets bit SPR0, spsr gets bit SPI2X */
+    _optflow_spi0 = new AVRSPI0DeviceDriver(optflow_cs, _BV(SPR0), _BV(SPI2X));
     _optflow_spi0->init();
 
+    /* Dataflash CS is on Arduino pin 28, PORTA6 */
     AVRDigitalSource* df_cs = new AVRDigitalSource(_BV(6), PA);
+    /* XXX need correct mode and baud */
     _dataflash = new AVRSPI3DeviceDriver(df_cs, 0, 0);
     _dataflash->init();
 
+    /* XXX need correct mode and baud */
     _optflow_spi3 = new AVRSPI3DeviceDriver(optflow_cs, 0, 0);
     _optflow_spi3->init();
 }

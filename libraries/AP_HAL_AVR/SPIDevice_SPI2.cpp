@@ -6,6 +6,7 @@
 #include "SPIDevices.h"
 #include "GPIO.h"
 #include "Semaphore.h"
+#include "pins_arduino_mega.h"
 using namespace AP_HAL_AVR;
 
 extern const AP_HAL::HAL& hal;
@@ -13,6 +14,15 @@ extern const AP_HAL::HAL& hal;
 AVRSemaphore AVRSPI2DeviceDriver::_semaphore;
 
 void AVRSPI2DeviceDriver::init() {
+    AVRDigitalSource spi2_miso(_BV(0), PH);
+    spi2_miso.mode(GPIO_INPUT);
+
+    AVRDigitalSource spi2_mosi(_BV(1), PH);
+    spi2_mosi.mode(GPIO_OUTPUT);
+
+    AVRDigitalSource spi2_sck(_BV(2), PH);
+    spi2_sck.mode(GPIO_OUTPUT);
+
     /* UMSELn1 and UMSELn2: USART in SPI Master mode */
     UCSR2C = _BV(UMSEL21) | _BV(UMSEL20);
     /* Enable RX and TX. */
