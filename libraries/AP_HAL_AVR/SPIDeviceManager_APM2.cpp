@@ -33,7 +33,9 @@ void APM2SPIDeviceManager::init(void* machtnichts) {
 
     /* Dataflash CS is on Arduino pin 28, PORTA6 */
     AVRDigitalSource* df_cs = new AVRDigitalSource(_BV(6), PA);
-    /* XXX need correct mode and baud */
+    /* dataflash uses mode 0 and a clock of 8mhz
+     * ucsr3c = 0 
+     * ubrr3 = 0 */
     _dataflash = new AVRSPI3DeviceDriver(df_cs, 0, 0);
     _dataflash->init();
 
