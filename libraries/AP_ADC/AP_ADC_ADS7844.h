@@ -5,6 +5,7 @@
 
 #include <inttypes.h>
 #include "AP_ADC.h"
+#include <AP_HAL.h>
 
 class AP_ADC_ADS7844 : public AP_ADC
 {
@@ -26,6 +27,7 @@ public:
 
 private:
     static void         read(uint32_t);
+    static AP_HAL::SPIDeviceDriver *_spi;
 
 };
 

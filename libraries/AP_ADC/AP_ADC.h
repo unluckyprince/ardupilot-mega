@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <../AP_PeriodicProcess/AP_PeriodicProcess.h>
 
 /*
  *       AP_ADC.cpp - Analog Digital Converter Base Class for Ardupilot Mega
