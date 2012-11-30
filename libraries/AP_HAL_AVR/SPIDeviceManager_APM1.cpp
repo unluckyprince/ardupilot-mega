@@ -12,9 +12,10 @@ extern const AP_HAL::HAL& hal;
 void APM1SPIDeviceManager::init(void* machtnichts) {
     /* dataflow cs is on arduino pin 53, PORTB0 */
     AVRDigitalSource* df_cs = new AVRDigitalSource(_BV(0), PB);
-    /* dataflash: divide clock by 2 to 8Mhz
-     * spsr gets bit SPI2X */
-    _dataflash = new AVRSPI0DeviceDriver(df_cs, 0, _BV(SPI2X));
+    /* dataflash: divide clock by 2 to 8Mhz, set SPI_MODE_3
+     * spcr gets 0x0C to set SPI_MODE_3
+     * spsr gets bit SPI2X for clock divider */
+    _dataflash = new AVRSPI0DeviceDriver(df_cs, 0x0C, _BV(SPI2X));
     _dataflash->init();
 
     /* optflow cs is on Arduino pin 34, PORTC3 */
