@@ -4,7 +4,7 @@
 #define __AP_INERTIAL_SENSOR_MPU6000_H__
 
 #include <stdint.h>
-
+#include <AP_HAL.h>
 #include <AP_Math.h>
 #include "AP_InertialSensor.h"
 
@@ -59,6 +59,8 @@ private:
     static uint8_t              register_read( uint8_t reg );
     static void                 register_write( uint8_t reg, uint8_t val );
     static void                 hardware_init();
+
+    static AP_HAL::SPIDeviceDriver *_spi;
 
     float                       _temp;
 
