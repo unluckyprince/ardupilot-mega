@@ -1,12 +1,9 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-#include <FastSerial.h>
-#include <AP_InertialNav.h>
 
-#if defined(ARDUINO) && ARDUINO >= 100
- #include "Arduino.h"
-#else
- #include <wiring.h>
-#endif
+#include "AP_InertialNav.h"
+#include <AP_HAL.h>
+
+extern const AP_HAL::HAL& hal;
 
 // table of user settable parameters
 const AP_Param::GroupInfo AP_InertialNav::var_info[] PROGMEM = {
@@ -16,21 +13,23 @@ const AP_Param::GroupInfo AP_InertialNav::var_info[] PROGMEM = {
     // @DisplayName: Inertial Nav calculated accelerometer corrections
     // @Description: calculated accelerometer corrections
     // @Increment: 1
-    AP_GROUPINFO("ACORR",   0, AP_InertialNav, _accel_correction, 0),
+    AP_GROUPINFO("ACORR", 0, AP_InertialNav, _accel_correction, 0),
 
     // @Param: TC_XY
     // @DisplayName: Horizontal Time Constant
-    // @Description: Time constnat for GPS and accel mixing. Higher TC increases GPS impact on position
+    // @Description: Time constnat for GPS and accel mixing. Higher TC
+    //               increases GPS impact on position
     // @Range: 0 10
     // @Increment: 0.1
-    AP_GROUPINFO("TC_XY",   1, AP_InertialNav, _time_constant_xy, AP_INTERTIALNAV_TC_XY),
+    AP_GROUPINFO("TC_XY", 1, AP_InertialNav, _time_constant_xy, AP_INTERTIALNAV_TC_XY),
 
     // @Param: TC_Z
     // @DisplayName: Vertical Time Constant
-    // @Description: Time constnat for baro and accel mixing. Higher TC increases barometers impact on altitude
+    // @Description: Time constnat for baro and accel mixing. Higher TC
+    //               increases barometers impact on altitude
     // @Range: 0 10
     // @Increment: 0.1
-    AP_GROUPINFO("TC_Z",    2, AP_InertialNav, _time_constant_z, AP_INTERTIALNAV_TC_Z),
+    AP_GROUPINFO("TC_Z", 2, AP_InertialNav, _time_constant_z, AP_INTERTIALNAV_TC_Z),
 
     AP_GROUPEND
 };
@@ -39,6 +38,7 @@ const AP_Param::GroupInfo AP_InertialNav::var_info[] PROGMEM = {
 void AP_InertialNav::save_params()
 {
     Vector3f accel_corr = _comp_filter.get_1st_order_correction();
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
     accel_corr.x = constrain(accel_corr.x,-200,200);
     accel_corr.y = constrain(accel_corr.y,-200,200);
     accel_corr.z = constrain(accel_corr.z,-200,200);
@@ -65,7 +65,8 @@ void AP_InertialNav::set_time_constant_z( float time_constant_in_seconds )
     }
 }
 
-// check_baro - check if new baro readings have arrived and use them to correct vertical accelerometer offsets
+// check_baro - check if new baro readings have arrived and use them to
+// correct vertical accelerometer offsets
 void AP_InertialNav::check_baro()
 {
     uint32_t baro_update_time;
@@ -84,7 +85,8 @@ void AP_InertialNav::check_baro()
 }
 
 
-// correct_with_baro - modifies accelerometer offsets using barometer.  dt is time since last baro reading
+// correct_with_baro - modifies accelerometer offsets using barometer.
+// dt is time since last baro reading
 void AP_InertialNav::correct_with_baro(float baro_alt, float dt)
 {
     static uint8_t first_reads = 0;
@@ -108,7 +110,8 @@ void AP_InertialNav::correct_with_baro(float baro_alt, float dt)
     _comp_filter.correct_3rd_order_z(baro_alt, dcm, dt);
 }
 
-// set_current_position - all internal calculations are recorded as the distances from this point
+// set_current_position - all internal calculations are recorded as the
+// distances from this point
 void AP_InertialNav::set_current_position(int32_t lon, int32_t lat)
 {
     // set base location
@@ -126,7 +129,8 @@ void AP_InertialNav::set_current_position(int32_t lon, int32_t lat)
     _xy_enabled = true;
 }
 
-// check_gps - check if new gps readings have arrived and use them to correct position estimates
+// check_gps - check if new gps readings have arrived and use them to
+// correct position estimates
 void AP_InertialNav::check_gps()
 {
     uint32_t gps_time;
@@ -142,7 +146,7 @@ void AP_InertialNav::check_gps()
     if( gps_time != _gps_last_time ) {
 
         // calculate time since last gps reading
-        now = millis();
+        now = hal.scheduler->millis();
         float dt = (float)(now - _gps_last_update) / 1000.0;
 
         // call position correction method
@@ -154,7 +158,8 @@ void AP_InertialNav::check_gps()
     }
 }
 
-// correct_with_gps - modifies accelerometer offsets using gps.  dt is time since last gps update
+// correct_with_gps - modifies accelerometer offsets using gps.
+// dt is time since last gps update
 void AP_InertialNav::correct_with_gps(int32_t lon, int32_t lat, float dt)
 {
     float x,y;
@@ -178,7 +183,8 @@ void AP_InertialNav::correct_with_gps(int32_t lon, int32_t lat, float dt)
     //Notes: with +x above, accel lat comes out reversed
 }
 
-// update - updates velocities and positions using latest info from ahrs, ins and barometer if new data is available;
+// update - updates velocities and positions using latest info from ahrs,
+// ins and barometer if new data is available;
 void AP_InertialNav::update(float dt)
 {
     // discard samples where dt is too large
@@ -220,10 +226,11 @@ void AP_InertialNav::update(float dt)
     _velocity = _comp_filter.get_2nd_order_estimate();
 }
 
-// position_ok - return true if position has been initialised and have received gps data within 3 seconds
+// position_ok - return true if position has been initialised and have
+// received gps data within 3 seconds
 bool AP_InertialNav::position_ok()
 {
-    return _xy_enabled && (millis() - _gps_last_update < 3000);
+    return _xy_enabled && (hal.scheduler->millis() - _gps_last_update < 3000);
 }
 
 // get accel based latitude
@@ -285,7 +292,8 @@ float AP_InertialNav::get_latitude_velocity()
     }
 
     return -_velocity.x;
-    // Note: is +_velocity.x the output velocity in logs is in reverse direction from accel lat
+    // Note: is +_velocity.x the output velocity in logs is in reverse
+    // direction from accel lat
 }
 
 float AP_InertialNav::get_longitude_velocity()
