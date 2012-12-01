@@ -10,7 +10,6 @@
 #include <AP_Param.h>
 #include <AP_GPS.h>             // ArduPilot GPS library
 #include <AP_Semaphore.h>       // for removing conflict between optical flow and dataflash on SPI3 bus
-#include <DataFlash.h>          // ArduPilot Mega Flash Memory Library
 #include <AP_ADC.h>             // ArduPilot Mega Analog to Digital Converter Library
 #include <AP_Baro.h>
 #include <AP_Declination.h>
