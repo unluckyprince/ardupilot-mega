@@ -78,7 +78,7 @@ AP_OpticalFlow_ADNS3080::init()
         retry++;
     }
     // If we fail to find on SPI3, no connection available.
-    retval = false;
+    retvalue = false;
     _spi = NULL;
 
 finish:
@@ -129,7 +129,7 @@ uint8_t AP_OpticalFlow_ADNS3080::read_register(uint8_t address)
 // write a value to one of the sensor's registers
 void AP_OpticalFlow_ADNS3080::write_register(uint8_t address, uint8_t value)
 {
-    if (_spi == NULL) return 0;
+    if (_spi == NULL) return;
 
     AP_HAL::Semaphore* sem = _spi->get_semaphore();
     // get spi semaphore if required
