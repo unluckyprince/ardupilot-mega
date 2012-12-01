@@ -20,9 +20,7 @@
  *                                  register (will be sensor specific)
  */
 
-#include <AP_Common.h>
 #include <AP_Math.h>
-#include <AP_Semaphore.h>
 
 // timer process runs at 1khz.  100 iterations = 10hz
 #define AP_OPTICALFLOW_NUM_CALLS_FOR_10HZ     100
@@ -63,9 +61,7 @@ public:
     ~AP_OpticalFlow() {
         _sensor = NULL;
     };
-    virtual bool init(bool initCommAPI,
-        AP_Semaphore* spi_semaphore = NULL,
-        AP_Semaphore* spi3_semaphore = NULL); 
+    virtual bool init(); 
     // parameter controls whether I2C/SPI interface is initialised
     // (set to false if other devices are on the I2C/SPI bus and have already
     // initialised the interface)
@@ -92,17 +88,19 @@ protected:
     enum Rotation            _orientation;
     // multiply this number by altitude and pixel change to get horizontal
     // move (in same units as altitude)
-    float                    conv_factor;
-    float                    radians_to_pixels;
-    float                    _last_roll, _last_pitch, _last_altitude;
+    float conv_factor;
+    float radians_to_pixels;
+    float _last_roll;
+    float _last_pitch;
+    float _last_altitude;
     // rotate raw values to arrive at final x,y,dx and dy values
-    virtual void             apply_orientation_matrix();
-    virtual void             update_conversion_factors();
+    virtual void apply_orientation_matrix();
+    virtual void update_conversion_factors();
 
 private:
     // number of times we have been called by 1khz timer process.
     // We use this to throttle read down to 20hz
-    static uint8_t                         _num_calls;
+    static uint8_t _num_calls;
 };
 
 #include "AP_OpticalFlow_ADNS3080.h"

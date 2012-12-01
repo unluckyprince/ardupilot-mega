@@ -19,11 +19,7 @@ AP_OpticalFlow* AP_OpticalFlow::_sensor = NULL;
 // We use this to throttle read down to 20hz
 uint8_t AP_OpticalFlow::_num_calls;
 
-// init - initCommAPI parameter controls whether I2C/SPI interface is initialised (set to false if other devices are on the I2C/SPI bus and have already initialised the interface)
-bool
-AP_OpticalFlow::init(bool initCommAPI,
-        AP_Semaphore* spi_semaphore,
-        AP_Semaphore* spi3_semaphore)
+bool AP_OpticalFlow::init()
 {
     _orientation = ROTATION_NONE;
     update_conversion_factors();
@@ -32,8 +28,7 @@ AP_OpticalFlow::init(bool initCommAPI,
 
 // set_orientation - Rotation vector to transform sensor readings to the body
 // frame.
-void
-AP_OpticalFlow::set_orientation(enum Rotation rotation)
+void AP_OpticalFlow::set_orientation(enum Rotation rotation)
 {
     _orientation = rotation;
 }
@@ -41,8 +36,7 @@ AP_OpticalFlow::set_orientation(enum Rotation rotation)
 // parent method called at 1khz by periodic process
 // this is slowed down to 20hz and each instance's update function is called
 // (only one instance is supported at the moment)
-void
-AP_OpticalFlow::read(uint32_t now)
+void AP_OpticalFlow::read(uint32_t now)
 {
     _num_calls++;
 
@@ -105,7 +99,7 @@ void AP_OpticalFlow::update_position(float roll, float pitch,
     // over 45 degrees
     if( surface_quality >= 10 && fabs(roll) <= FORTYFIVE_DEGREES
      && fabs(pitch) <= FORTYFIVE_DEGREES ) {
-        altitude = max(altitude, 0);
+        altitude = (altitude > 0 ? altitude : 0);
         // calculate expected x,y diff due to roll and pitch change
         exp_change_x = diff_roll * radians_to_pixels;
         exp_change_y = -diff_pitch * radians_to_pixels;
