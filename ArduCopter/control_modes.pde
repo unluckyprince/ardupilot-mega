@@ -5,7 +5,7 @@ static void read_control_switch()
 {
     static uint8_t switch_counter = 0;
 
-    byte switchPosition = readSwitch();
+    uint8_t switchPosition = readSwitch();
 
     if (oldSwitchPosition != switchPosition) {
         switch_counter++;
@@ -31,7 +31,7 @@ static void read_control_switch()
     }
 }
 
-static byte readSwitch(void){
+static uint8_t readSwitch(void){
     int16_t pulsewidth = g.rc_5.radio_in;                       // default for Arducopter
 
     if (pulsewidth > 1230 && pulsewidth <= 1360) return 1;
